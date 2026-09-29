@@ -62,3 +62,29 @@ def meters_per_week(df):
     )
     result["total_meters"] = result["total_meters"].round().astype(int)
     return result[columns].sort_values("week_start").reset_index(drop=True)
+
+
+def best_pace(df, min_distance_m=1000):
+    """Best /500m pace string among rows with distance_m >= min_distance_m, or None."""
+    if df is None or not hasattr(df, "columns"):
+        return None
+    required = {"distance_m", "time_sec"}
+    if not required.issubset(df.columns):
+        return None
+    try:
+        clean = df[["distance_m", "time_sec"]].copy()
+        clean["distance_m"] = pd.to_numeric(clean["distance_m"], errors="coerce")
+        clean["time_sec"] = pd.to_numeric(clean["time_sec"], errors="coerce")
+        clean = clean.dropna()
+        clean = clean[
+            (clean["distance_m"] >= float(min_distance_m))
+            & (clean["distance_m"] > 0)
+            & (clean["time_sec"] >= 0)
+        ]
+        if clean.empty:
+            return None
+        pace_seconds = clean["time_sec"] * 500 / clean["distance_m"]
+        best = float(pace_seconds.min())
+        return pace_per_500m(500, best)
+    except (TypeError, ValueError, ZeroDivisionError, OverflowError):
+        return None
