@@ -46,11 +46,22 @@ def load_csv(file_or_path) -> pd.DataFrame:
     return frame.sort_values("date", ascending=False).reset_index(drop=True)
 
 
-def csv_bytes(frame: pd.DataFrame) -> bytes:
-    """Serialize the editable practice columns for download."""
+def practices_to_csv_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    """Normalize practice columns for disk or download."""
     output = frame[REQUIRED_COLUMNS].copy()
     output["date"] = pd.to_datetime(output["date"]).dt.strftime("%Y-%m-%d")
-    return output.to_csv(index=False).encode("utf-8")
+    return output
+
+
+def save_practices(frame: pd.DataFrame) -> None:
+    """Write the practice log to the on-disk CSV."""
+    DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    practices_to_csv_frame(frame).to_csv(DATA_PATH, index=False)
+
+
+def csv_bytes(frame: pd.DataFrame) -> bytes:
+    """Serialize the editable practice columns for download."""
+    return practices_to_csv_frame(frame).to_csv(index=False).encode("utf-8")
 
 
 st.title("🚣 RowSeer")
@@ -80,7 +91,11 @@ with st.sidebar:
         st.session_state.practices = pd.concat(
             [st.session_state.practices, new_row], ignore_index=True
         )
-        st.success("Practice added to this session.")
+        try:
+            save_practices(st.session_state.practices)
+            st.success("Practice saved.")
+        except OSError as exc:
+            st.error(f"Added for this session, but could not save to disk: {exc}")
 
 frame = st.session_state.practices.copy()
 frame["pace /500m"] = [
@@ -89,7 +104,7 @@ frame["pace /500m"] = [
 ]
 
 if frame.empty:
-    st.warning("No valid practices yet. Add one from the sidebar or upload a CSV.")
+    st.warning("No valid practices yet. Add one from the sidebar.")
 else:
     total_meters = int(frame["distance_m"].sum())
     practice_count = len(frame)
