@@ -1,6 +1,6 @@
 # RowSeer
 
-A training log for college rowing: sign up, save practices per account, and track volume and pace with interactive charts.
+A training log for rowing: sign up, save practices per account, and track volume and pace with interactive charts.
 
 ## Features
 

@@ -422,7 +422,7 @@ def render_goals_and_prs(frame: pd.DataFrame) -> None:
 def render_app() -> None:
     """Logged-in dashboard: sidebar form, metrics, manage list, charts."""
     st.title("RowSeer")
-    st.caption("A simple training log for college rowing: volume, pace, and season trends.")
+    st.caption("A simple training log for rowing: volume, pace, and season trends.")
 
     # Defaults for template-driven add form widgets (must exist before widgets render).
     if "add_distance" not in st.session_state:
@@ -508,8 +508,9 @@ def render_app() -> None:
         st.divider()
         st.subheader("Import CSV")
         st.caption(
-            "Columns: date, type, distance_m, time_sec, notes. "
-            "Optional: stroke_rate, boat_class, splits (saved when present)."
+            "Your file needs a header row with date, type, distance (meters), "
+            "time (seconds), and notes. You can also include stroke rate, boat class, "
+            "and splits if you have them."
         )
         uploaded_csv = st.file_uploader(
             "Upload practices CSV",
