@@ -4,7 +4,7 @@ A training log for rowing: sign up, save practices per account, and track volume
 
 ## Features
 
-- Email/password signup and login (custom auth via Supabase + bcrypt — not magic links)
+- Email/password signup and login (custom auth via Supabase + bcrypt)
 - Per-user practice storage in Supabase (`profiles`, `practices`)
 - Sidebar form to add Water / Erg / Race sessions (placeholder: **Choose type**)
 - **Workout templates** (Steady 10k, 4x2k, 8x500, …) — code-only; selecting one pre-fills distance and notes
