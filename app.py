@@ -138,7 +138,7 @@ def import_practices_from_csv(user_id: str, uploaded_file) -> tuple[int, int]:
     return saved, skipped
 
 
-st.set_page_config(page_title="RowSeer", page_icon="🚣", layout="wide")
+st.set_page_config(page_title="RowSeer", layout="wide")
 
 WORKOUT_TEMPLATES: dict[str, dict[str, object] | None] = {
     "Custom (no template)": None,
@@ -176,7 +176,7 @@ def apply_workout_template() -> None:
     st.session_state["add_notes"] = str(tmpl.get("notes") or "")
 
 
-st.set_page_config(page_title="RowSeer", page_icon="🚣", layout="wide")
+st.set_page_config(page_title="RowSeer", layout="wide")
 
 
 def csv_bytes(frame: pd.DataFrame) -> bytes:
@@ -213,7 +213,7 @@ def refresh_goal() -> None:
 
 def render_auth() -> None:
     """Signup / login tabs when the user is not authenticated."""
-    st.title("🚣 RowSeer")
+    st.title("RowSeer")
     st.caption("Sign in to log practices and track volume and pace.")
 
     if not ensure_secrets():
@@ -421,7 +421,7 @@ def render_goals_and_prs(frame: pd.DataFrame) -> None:
 
 def render_app() -> None:
     """Logged-in dashboard: sidebar form, metrics, manage list, charts."""
-    st.title("🚣 RowSeer")
+    st.title("RowSeer")
     st.caption("A simple training log for college rowing: volume, pace, and season trends.")
 
     # Defaults for template-driven add form widgets (must exist before widgets render).
