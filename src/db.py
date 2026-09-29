@@ -182,3 +182,19 @@ def save_practice(user_id: str, row: dict[str, Any]) -> None:
         raise ValueError(
             f"Could not save practice ({response.status_code}): {response.text[:300]}"
         )
+
+
+def clear_practices(user_id: str) -> None:
+    """Delete all practices for the given user."""
+    url, anon_key = get_config()
+    response = requests.delete(
+        f"{url}/rest/v1/practices",
+        headers=_headers(anon_key, prefer="return=minimal"),
+        params={"user_id": f"eq.{user_id}"},
+        timeout=30,
+    )
+    if response.status_code not in (200, 204):
+        raise ValueError(
+            f"Could not clear practices ({response.status_code}): {response.text[:300]}"
+        )
+

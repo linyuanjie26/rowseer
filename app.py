@@ -14,6 +14,7 @@ if str(SRC_DIR) not in sys.path:
 from db import (  # noqa: E402
     PRACTICE_COLUMNS,
     SecretsError,
+    clear_practices,
     get_config,
     load_practices,
     login,
@@ -25,13 +26,6 @@ from metrics import meters_per_week, pace_per_500m  # noqa: E402
 VALID_TYPES = ["water", "erg", "race"]
 
 st.set_page_config(page_title="RowSeer", page_icon="🚣", layout="wide")
-
-
-def csv_bytes(frame: pd.DataFrame) -> bytes:
-    """Serialize the editable practice columns for download."""
-    output = frame[PRACTICE_COLUMNS].copy()
-    output["date"] = pd.to_datetime(output["date"]).dt.strftime("%Y-%m-%d")
-    return output.to_csv(index=False).encode("utf-8")
 
 
 def ensure_secrets() -> bool:
@@ -98,7 +92,7 @@ def render_auth() -> None:
 def render_app() -> None:
     """Logged-in dashboard: sidebar form, metrics, table, charts."""
     st.title("🚣 RowSeer")
-    st.caption("A simple training log for college rowing: volume, pace, and season trends.")
+    st.caption("A simple training log for rowing: volume, pace, and season trends.")
 
     with st.sidebar:
         st.write(f"Signed in as **{st.session_state.email}**")
@@ -108,6 +102,7 @@ def render_app() -> None:
             st.rerun()
 
         st.divider()
+        st.header("Practice Log")
         st.subheader("Add a practice")
         with st.form("add_practice", clear_on_submit=True):
             practice_date = st.date_input("Date")
@@ -175,21 +170,32 @@ def render_app() -> None:
     metric_cols[1].metric("Practices", practice_count)
     metric_cols[2].metric("Best pace (≥1,000m)", best_pace or "—")
 
-    st.subheader("Practice log")
+    st.subheader("Practice Log")
     display = frame.copy()
     display["date"] = pd.to_datetime(display["date"]).dt.strftime("%Y-%m-%d")
+    display = display.rename(columns={
+        "date": "Date",
+        "type": "Type",
+        "distance_m": "Distance (m)",
+        "time_sec": "Time (sec)",
+        "pace /500m": "Pace (/500m)",
+        "notes": "Notes",
+    })
     st.dataframe(
-        display[["date", "type", "distance_m", "time_sec", "pace /500m", "notes"]],
+        display[["Date", "Type", "Distance (m)", "Time (sec)", "Pace (/500m)", "Notes"]],
         use_container_width=True,
         hide_index=True,
     )
 
-    st.download_button(
-        "Download CSV",
-        data=csv_bytes(frame),
-        file_name="rowseer_practices.csv",
-        mime="text/csv",
-    )
+    confirm_clear = st.checkbox("I want to clear my entire practice log")
+    if st.button("Clear practice log", type="secondary", disabled=not confirm_clear):
+        try:
+            clear_practices(st.session_state.user_id)
+            st.session_state.practices = pd.DataFrame(columns=PRACTICE_COLUMNS)
+            st.success("Practice log cleared.")
+            st.rerun()
+        except ValueError as exc:
+            st.error(str(exc))
 
     st.subheader("Training trends")
     weekly = meters_per_week(frame)
