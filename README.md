@@ -16,10 +16,6 @@ A training log for rowing: sign up, save practices per account, and track volume
 - Optional CSV download of your log
 - RowSeer branding throughout (no personal name-drop)
 
-## Resume
-
-- **RowSeer:** rowing practice tracker with Supabase auth, per-user logs, pace/volume charts, season goals & PRs, and CSV import/export.
-
 ## Roadmap
 
 | Phase | Focus | Status |
